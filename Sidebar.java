@@ -66,7 +66,7 @@ public class Sidebar extends JPanel implements ActionListener {
             }
         }
 
-        for (File f: arr) {
+        for (File f : arr) {
             if (f.getName().contains(".txt"))
                 output.add(f);
         }
@@ -113,12 +113,12 @@ public class Sidebar extends JPanel implements ActionListener {
             if (blank.createNewFile()) {
                 Notefield.setText(getText(blank));
                 JButton blankButton = new JButton("Unnamed");
-                buttons.add(0,blankButton);
+                buttons.add(0, blankButton);
                 files.add(0, new File("./Notes/Unnamed.txt"));
 
-                panel.add(blankButton,0);
+                panel.add(blankButton, 0);
                 panel.setLayout(new GridLayout(files.size(), 1));
-                
+
                 panel.revalidate();
 
             } else {
@@ -126,12 +126,12 @@ public class Sidebar extends JPanel implements ActionListener {
                 lastClicked.setSelected(false);
                 int index = 0;
                 for (int x = 0; x < files.size(); x++) {
-                    if (files.get(x).getName().equals("Unnamed.txt")) 
+                    if (files.get(x).getName().equals("Unnamed.txt"))
                         index = x;
                 }
 
                 JButton tempb = buttons.get(0);
-                buttons.set(0,buttons.get(index));
+                buttons.set(0, buttons.get(index));
                 buttons.set(index, tempb);
                 File tempf = files.get(0);
                 files.set(0, files.get(index));
@@ -143,29 +143,32 @@ public class Sidebar extends JPanel implements ActionListener {
                 Notefield.setText(getText(blank));
             }
 
-            lastClicked=buttons.get(0);
+            lastClicked = buttons.get(0);
             setButton(0);
 
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
     }
 
     public static void delNote() {
-        File blank = new File("./Notes/Unnamed.txt");
-        blank.delete();
-        //panel.remove(findFileIndex())
+        // System.out.println(lastClicked.getText());
+        File del = new File("./Notes/"+lastClicked.getText()+".txt");
+        del.delete();
+        int index = findFileIndex(del);
+        panel.remove(buttons.get(index));
+        files.remove(index);
+
+        panel.setLayout(new GridLayout(files.size(), 1));
         panel.revalidate();
     }
 
-    public static int findFileIndex(String name) {
+    public static int findFileIndex(File file) {
         int index = 0;
         for (int x = 0; x < files.size(); x++) {
-                    if (files.get(x).getName().equals(name)) 
-                        index = x;
+            if (files.get(x).getName().equals(file.getName()))
+                index = x;
         }
         return index;
-
     }
-
-
 }

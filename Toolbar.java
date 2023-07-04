@@ -56,7 +56,7 @@ public class Toolbar extends JPanel implements ActionListener {
         if (e.getSource() == newButton) {
             Sidebar.newNote();
         } else if (e.getSource() == delButton) {
-            
+            Sidebar.delNote();
         } else if (e.getSource() == saveButton) {
 
         } else if (e.getSource() == fontButton) {
