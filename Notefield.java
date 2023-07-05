@@ -37,4 +37,8 @@ public class Notefield extends JPanel{
         text.setVisible(true);
         text.setCaretPosition(0);
     } 
+
+    public static String getText() {
+        return text.getText();
+    }
 }

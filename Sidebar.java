@@ -2,9 +2,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -12,7 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-public class Sidebar extends JPanel implements ActionListener {
+public class Sidebar extends JPanel {
 
     private static ArrayList<JButton> buttons;
     private static ArrayList<File> files;
@@ -34,22 +33,34 @@ public class Sidebar extends JPanel implements ActionListener {
 
         buttons = new ArrayList<JButton>();
 
-        for (int x = 0; x < files.size(); x++) {
-
-            JButton button = new JButton(files.get(x).getName().substring(0, files.get(x).getName().lastIndexOf('.')));
-            button.setPreferredSize(new Dimension(175, 75));
-            button.addActionListener(this);
-
-            buttons.add(button);
-            panel.add(button);
-        }
+        generateButtons();
 
         lastClicked = buttons.get(0);
 
         scroll = new JScrollPane(panel);
         this.add(scroll, BorderLayout.CENTER);
-        System.out.println(files);
         this.setVisible(true);
+    }
+
+    private static void generateButtons() {
+        buttons.clear();
+        for (int x = 0; x < files.size(); x++) {
+
+            JButton button = new JButton(files.get(x).getName().substring(0, files.get(x).getName().lastIndexOf('.')));
+            button.setPreferredSize(new Dimension(175, 75));
+            button.addActionListener(e -> {
+                if (e.getSource() instanceof JButton) {
+                    lastClicked.setSelected(false);
+                    Notefield.setText(getText(new File("./Notes/" + ((JButton) e.getSource()).getText() + ".txt")));
+                    ((JButton) e.getSource()).setSelected(true);
+                    lastClicked = ((JButton) e.getSource());
+
+                }
+            });
+
+            buttons.add(button);
+            panel.add(button);
+        }
     }
 
     private ArrayList<File> listFiles(File file) {
@@ -72,16 +83,6 @@ public class Sidebar extends JPanel implements ActionListener {
         }
 
         return output;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() instanceof JButton) {
-            lastClicked.setSelected(false);
-            Notefield.setText(getText(new File("./Notes/" + ((JButton) e.getSource()).getText() + ".txt")));
-            ((JButton) e.getSource()).setSelected(true);
-            lastClicked = ((JButton) e.getSource());
-
-        }
     }
 
     public static String getText(File note) {
@@ -119,10 +120,7 @@ public class Sidebar extends JPanel implements ActionListener {
                 panel.add(blankButton, 0);
                 panel.setLayout(new GridLayout(files.size(), 1));
 
-                panel.revalidate();
-
             } else {
-                System.out.println(files);
                 lastClicked.setSelected(false);
                 int index = 0;
                 for (int x = 0; x < files.size(); x++) {
@@ -130,30 +128,26 @@ public class Sidebar extends JPanel implements ActionListener {
                         index = x;
                 }
 
-                JButton tempb = buttons.get(0);
-                buttons.set(0, buttons.get(index));
-                buttons.set(index, tempb);
-                File tempf = files.get(0);
-                files.set(0, files.get(index));
-                files.set(index, tempf);
+                buttons.add(0, buttons.get(index));
+                buttons.remove(index + 1);
+                files.add(0, files.get(index));
+                files.remove(index + 1);
 
-                System.out.println(files);
-                System.out.println(files.get(0).setLastModified(System.currentTimeMillis()));
+                files.get(0).setLastModified(System.currentTimeMillis());
 
                 Notefield.setText(getText(blank));
             }
 
+            panel.revalidate();
             lastClicked = buttons.get(0);
             setButton(0);
 
         } catch (Exception e) {
         }
-
     }
 
     public static void delNote() {
-        // System.out.println(lastClicked.getText());
-        File del = new File("./Notes/"+lastClicked.getText()+".txt");
+        File del = new File("./Notes/" + lastClicked.getText() + ".txt");
         del.delete();
         int index = findFileIndex(del);
         panel.remove(buttons.get(index));
@@ -170,5 +164,50 @@ public class Sidebar extends JPanel implements ActionListener {
                 index = x;
         }
         return index;
+    }
+
+    public static void saveNote() {
+        File save = new File("./Notes/" + lastClicked.getText() + ".txt");
+
+        Scanner sc = new Scanner(Notefield.getText());
+        String s = sc.nextLine().trim();
+        sc.close();
+        
+        String path = "";
+        files.remove(save);
+
+        if (s.length() >= 20) {
+            path = "./Notes/" + s.substring(0, 20) + "-.txt";
+            save.renameTo(new File(path));
+            save.delete();
+            save = new File(path);
+        } else if (s.length() > 0) {
+            path = "./Notes/" + s + ".txt";
+            save.renameTo(new File(path));
+            save.delete();
+            save = new File(path);
+        } else {
+            path = "./Notes/Unnamed.txt";
+            save.renameTo(new File(path));
+            save.delete();
+            save = new File(path);
+        }
+
+        files.add(0, save);
+
+        try {
+            FileWriter write = new FileWriter("./Notes/" + save.getName());
+            write.write(Notefield.getText());
+            write.close();
+        } catch (Exception E) {
+            System.out.println("Breh");
+        }
+
+        panel.removeAll();
+        generateButtons();
+        setButton(0);
+        lastClicked = buttons.get(0);
+        panel.revalidate();
+
     }
 }
