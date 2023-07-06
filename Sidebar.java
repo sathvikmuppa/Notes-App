@@ -36,6 +36,7 @@ public class Sidebar extends JPanel {
         generateButtons();
 
         lastClicked = buttons.get(0);
+        buttons.get(0).setSelected(true);
 
         scroll = new JScrollPane(panel);
         this.add(scroll, BorderLayout.CENTER);
@@ -103,12 +104,9 @@ public class Sidebar extends JPanel {
         return files.get(0);
     }
 
-    public static void setButton(int i) {
-        buttons.get(i).setSelected(true);
-    }
-
     public static void newNote() {
         File blank = new File("./Notes/Unnamed.txt");
+        lastClicked.setSelected(false);
 
         try {
             if (blank.createNewFile()) {
@@ -140,21 +138,29 @@ public class Sidebar extends JPanel {
 
             panel.revalidate();
             lastClicked = buttons.get(0);
-            setButton(0);
+            buttons.get(0).setSelected(true);
 
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
     }
 
     public static void delNote() {
         File del = new File("./Notes/" + lastClicked.getText() + ".txt");
-        del.delete();
-        int index = findFileIndex(del);
-        panel.remove(buttons.get(index));
-        files.remove(index);
+        if (del.exists()) {   
+            System.out.println(lastClicked.getText());
+            del.delete();
+            int index = findFileIndex(del);
+            panel.remove(buttons.get(index));
+            buttons.remove(index);
+            files.remove(index);
 
-        panel.setLayout(new GridLayout(files.size(), 1));
-        panel.revalidate();
+            panel.setLayout(new GridLayout(files.size(), 1));
+            panel.revalidate();
+
+            lastClicked = buttons.get(0);
+            lastClicked.setSelected(true);
+            Notefield.setText(getText(new File("./Notes/" + lastClicked.getText() + ".txt")));
+        }
+
     }
 
     public static int findFileIndex(File file) {
@@ -200,12 +206,12 @@ public class Sidebar extends JPanel {
             write.write(Notefield.getText());
             write.close();
         } catch (Exception E) {
-            System.out.println("Breh");
+            System.out.println("Unable to write file");
         }
 
         panel.removeAll();
         generateButtons();
-        setButton(0);
+        buttons.get(0).setSelected(true);
         lastClicked = buttons.get(0);
         panel.revalidate();
 
