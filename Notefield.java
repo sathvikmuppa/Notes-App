@@ -24,7 +24,6 @@ public class Notefield extends JPanel{
         text.setWrapStyleWord(true);
 
         setText(Sidebar.getText(Sidebar.getRecent()));
-        Sidebar.setButton(0);
 
         JScrollPane scroll = new JScrollPane(text);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);  
